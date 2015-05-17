@@ -21,7 +21,7 @@ namespace WikidataBioValidation
                 Console.WriteLine(errormessage);
             }
             
-            WikipediaBioArticle WPperson = new WikipediaBioArticle(WDperson.WikipediaLink);
+            WikipediaBioArticle WPperson = new WikipediaBioArticle(WDperson.thisWikidata.WikipediaLink);
 
             foreach (string errormessage in WPperson.ErrorMessage)
             {

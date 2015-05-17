@@ -10,14 +10,13 @@ namespace WikidataBioValidation
     /// </summary>
     class WikidataItem
     {
-        private string WikidataItemID;
+        public  WikidataFields thisWikidata;
 
         public WikidataItem(string wikidataItemID)
         {
-
+            WikidataIO WIO = new WikidataIO(wikidataItemID);
+            thisWikidata = WIO.data;
         }
-
-        public string WikipediaLink { get; set; }
 
         public IEnumerable<string> ErrorMessage { get; set; }
     }
