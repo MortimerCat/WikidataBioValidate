@@ -15,7 +15,7 @@ namespace WikidataBioValidation
 
         public WikiValidate(WikidataItem WDperson, WikipediaBioArticle WPperson)
         {
-            // TODO: Complete member initialization
+            // TODO: Complete member initialisation
             this.WDperson = WDperson;
             this.WPperson = WPperson;
         }
