@@ -49,6 +49,7 @@
     <Compile Include="WikidataIO.cs" />
     <Compile Include="WikidataItem.cs" />
     <Compile Include="Wikidate.cs" />
+    <Compile Include="WikimediaApi.cs" />
     <Compile Include="WikipediaBioArticle.cs" />
     <Compile Include="WikiValidate.cs" />
   </ItemGroup>

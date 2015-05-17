@@ -8,16 +8,29 @@ namespace WikidataBioValidation
     /// <summary>
     /// Interface to Wikidata
     /// </summary>
-    class WikidataIO
+    class WikidataIO : WikimediaApi
     {
-        private string wikidataItemID;
+        protected override string APIurl { get { return @"http://www.wikidata.org/w/api.php?"; } }
+
+        public WikidataFields Data { get; private set; }
 
         public WikidataIO(string wikidataItemID)
         {
-            // TODO: Complete member initialization
-            this.wikidataItemID = wikidataItemID;
+            Data = new WikidataFields()
+            {
+                ID = wikidataItemID
+            };
+
+            RetrieveData();
         }
 
-        public WikidataFields data { get; set; }
+        private void RetrieveData()
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+
     }
 }

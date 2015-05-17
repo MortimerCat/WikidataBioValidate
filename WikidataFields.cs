@@ -5,6 +5,10 @@ using System.Text;
 
 namespace WikidataBioValidation
 {
+    /// <summary>
+    /// Container class to hold a persons information
+    /// Note that is not a complete list, just the ones needed to validate.
+    /// </summary>
     class WikidataFields
     {
         public string ID { set; get; }

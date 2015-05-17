@@ -15,7 +15,7 @@ namespace WikidataBioValidation
         public WikidataItem(string wikidataItemID)
         {
             WikidataIO WIO = new WikidataIO(wikidataItemID);
-            thisWikidata = WIO.data;
+            thisWikidata = WIO.Data;
         }
 
         public IEnumerable<string> ErrorMessage { get; set; }
