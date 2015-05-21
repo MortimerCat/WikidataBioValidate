@@ -19,5 +19,7 @@ namespace WikidataBioValidation
             this.WDperson = WDperson;
             this.WPperson = WPperson;
         }
+
+        public IEnumerable<string> ErrorMessage { get; set; }
     }
 }

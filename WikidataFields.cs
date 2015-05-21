@@ -19,5 +19,14 @@ namespace WikidataBioValidation
         public string Description { set; get; }
         public string Gender { set; get; }
         public string CitizenOf { set; get; }
+        public string InstanceOf { set; get; }
+
+        public WikidataFields()
+        {
+            DateOfBirth = new Wikidate();
+            DateOfDeath = new Wikidate();
+        }
+
     }
+
 }

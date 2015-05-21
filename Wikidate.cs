@@ -9,8 +9,8 @@ namespace WikidataBioValidation
 
     class Wikidate
     {
-        private DateTime thisDate;
-        private DatePrecision thisPrecision;
+        public DateTime thisDate { get; set; }
+        public DatePrecision thisPrecision { get; set; }
 
         string toString()
         {

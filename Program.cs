@@ -16,23 +16,45 @@ namespace WikidataBioValidation
 
             WikidataItem WDperson = new WikidataItem(WikidataItemID);
 
-            foreach(string errormessage in WDperson.ErrorMessage)
+            Console.WriteLine(WDperson.thisWikidata.ID);
+            Console.WriteLine(WDperson.thisWikidata.Name);
+            Console.WriteLine(WDperson.thisWikidata.Gender);
+            Console.WriteLine(WDperson.thisWikidata.Description);
+            Console.WriteLine(WDperson.thisWikidata.InstanceOf);
+            Console.WriteLine(WDperson.thisWikidata.CitizenOf);
+            Console.WriteLine(WDperson.thisWikidata.DateOfBirth.thisDate);
+            Console.WriteLine(WDperson.thisWikidata.DateOfBirth.thisPrecision);
+            Console.WriteLine(WDperson.thisWikidata.DateOfDeath.thisDate);
+            Console.WriteLine(WDperson.thisWikidata.DateOfDeath.thisPrecision);
+            Console.WriteLine(WDperson.thisWikidata.WikipediaLink);
+
+
+            if (WDperson.ErrorMessage != null)
             {
-                Console.WriteLine(errormessage);
+                foreach (string errormessage in WDperson.ErrorMessage)
+                {
+                    Console.WriteLine(errormessage);
+                }
             }
-            
+
             WikipediaBioArticle WPperson = new WikipediaBioArticle(WDperson.thisWikidata.WikipediaLink);
 
-            foreach (string errormessage in WPperson.ErrorMessage)
+            if (WPperson.ErrorMessage != null)
             {
-                Console.WriteLine(errormessage);
+                foreach (string errormessage in WPperson.ErrorMessage)
+                {
+                    Console.WriteLine(errormessage);
+                }
             }
 
-            WikiValidate Vperson = new WikiValidate(WDperson,WPperson);
+            WikiValidate Vperson = new WikiValidate(WDperson, WPperson);
 
-            foreach (string errormessage in WPperson.ErrorMessage)
+            if (Vperson.ErrorMessage != null)
             {
-                Console.WriteLine(errormessage);
+                foreach (string errormessage in WPperson.ErrorMessage)
+                {
+                    Console.WriteLine(errormessage);
+                }
             }
         }
     }
