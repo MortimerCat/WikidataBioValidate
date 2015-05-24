@@ -14,8 +14,16 @@ namespace WikidataBioValidation
 
         public WikidataItem(string wikidataItemID)
         {
-            WikidataIO WIO = new WikidataIO(wikidataItemID);
-            thisWikidata = WIO.Data;
+            WikidataIO WIO = new WikidataIO();
+
+            WIO.Action = "wbgetentities";
+            WIO.Format = "json";
+            WIO.Sites = "enwiki";
+            WIO.Ids = wikidataItemID;
+            WIO.Props  = "claims|descriptions|labels|sitelinks";
+            WIO.Languages = "en";
+
+            thisWikidata = WIO.GetData();
         }
 
         public IEnumerable<string> ErrorMessage { get; set; }

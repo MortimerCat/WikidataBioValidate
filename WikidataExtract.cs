@@ -15,6 +15,7 @@ namespace WikidataBioValidation
         public WikidataFields Fields { get; set; }
         private string Content { get; set; }
         private string[] ClaimsRequired = new string[5] { "P31", "P27", "P21", "P569", "P570" };
+        private WikidataCache Cache = new WikidataCache();
 
         public WikidataExtract(string content)
         {
@@ -126,7 +127,7 @@ namespace WikidataBioValidation
                             else if (SnakDataType == "wikibase-item")
                             {
                                 var ObjectValue = (JObject)SnakDataValue["value"];
-                                thisValueString = "Q" + (string)ObjectValue["numeric-id"];
+                                thisValueString = Cache.Lookup((string)ObjectValue["numeric-id"]);
                             }
                             else if (SnakDataType == "time")
                             {

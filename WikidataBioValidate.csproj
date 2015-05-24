@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WikidataCache.cs" />
     <Compile Include="WikidataExtract.cs" />
     <Compile Include="WikidataFields.cs" />
     <Compile Include="WikidataIO.cs" />

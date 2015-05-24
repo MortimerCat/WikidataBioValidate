@@ -10,40 +10,36 @@ namespace WikidataBioValidation
     /// </summary>
     class WikidataIO : WikimediaApi
     {
-        private string Action = "wbgetentities";
-        private string Format = "json";
-        private string Sites = "enwiki";
-        private string Ids = "";
-        private string Props = "claims|descriptions|labels|sitelinks";
-        private string Languages = "en";
-
         protected override string APIurl { get { return @"http://www.wikidata.org/w/api.php?"; } }
         protected override string Parameters
         {
             get { 
                 string Param = "action=" + Action;
-                Param += "&format=" + Format;
-                Param += "&sites=" + Sites;
-                Param += "&ids=" + Ids;
-                Param += "&props=" + Props;
-                Param += "&languages=" + Languages;
+                if (Format != "") Param += "&format=" + Format;
+                if (Sites != "") Param += "&sites=" + Sites;
+                if (Ids != "") Param += "&ids=" + Ids;
+                if (Props != "") Param += "&props=" + Props;
+                if (Languages != "") Param += "&languages=" + Languages;
 
                 return Param;
             }
         }
 
+        public string Action { get; set; }
+        public string Format { get; set; }
+        public string Sites { get; set; }
+        public string Ids { get; set; }
+        public string Props { get; set; }
+        public string Languages { get; set; }
 
-        public WikidataFields Data { get; private set; }
-
-        public WikidataIO(string wikidataItemID)
+        public WikidataFields GetData()
         {
-            Ids = wikidataItemID;
             GrabPage();
-
             WikidataExtract Item = new WikidataExtract(Content);
-            Data = Item.Fields;
-
-
+            return  Item.Fields;
         }
+
+
+
     }
 }
