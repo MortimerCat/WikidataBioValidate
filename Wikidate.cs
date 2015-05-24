@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,12 +7,15 @@ namespace WikidataBioValidation
 {
     public enum DatePrecision { Null, Day, Month, Year, Decade, Century, Unknown, NotEntered, NoProperty, BCE, Invalid, Millenium };
 
+    /// <summary>
+    /// Class to hold a date, which includes a precision
+    /// </summary>
     class Wikidate
     {
         public DateTime thisDate { get; set; }
         public DatePrecision thisPrecision { get; set; }
 
-        string toString()
+        public override string ToString()
         {
             string FormattedDate = "Invalid";
 

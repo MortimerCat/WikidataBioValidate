@@ -10,10 +10,10 @@ namespace WikidataBioValidation
     /// </summary>
     class WikiValidate
     {
-        private WikidataItem WDperson;
-        private WikipediaBioArticle WPperson;
+        private WikidataBiography WDperson;
+        private WikipediaBiography WPperson;
 
-        public WikiValidate(WikidataItem WDperson, WikipediaBioArticle WPperson)
+        public WikiValidate(WikidataBiography WDperson, WikipediaBiography WPperson)
         {
             // TODO: Complete member initialisation
             this.WDperson = WDperson;

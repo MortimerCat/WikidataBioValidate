@@ -3,27 +3,33 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;    // https://github.com/JamesNK/Newtonsoft.Json
 
 namespace WikidataBioValidation
 {
     /// <summary>
-    /// Class to extract data from Wikidata
+    /// Class to extract data from downloaded Wikidata
+    /// This could have been part of WikidataIO.cs, but split out as it is large and cumbersome
     /// </summary>
     class WikidataExtract
     {
         public WikidataFields Fields { get; set; }
         private string Content { get; set; }
-        private string[] ClaimsRequired = new string[5] { "P31", "P27", "P21", "P569", "P570" };
+        public string[] ClaimsRequired { get; set; }
         private WikidataCache Cache = new WikidataCache();
 
-        public WikidataExtract(string content)
+        public WikidataExtract(string content,string[] claimsrequired)
         {
+            ClaimsRequired = claimsrequired;
             Fields = new WikidataFields();
             Content = content;
             ExtractJSON();
         }
 
+        /// <summary>
+        /// Note: This method requires Newtonsoft Json to be installed
+        /// </summary>
+        /// <returns></returns>
         private bool ExtractJSON()
         {
             //Interpret the JSON - Basically read in a level at a time.
@@ -41,7 +47,8 @@ namespace WikidataBioValidation
                 return false;
             }
 
-            Fields.ID = (string)EntityData["id"];
+            string Qcode = (string)EntityData["id"];
+            Fields.ID = Convert.ToInt32(Qcode.Substring(1));
             string EntityType = (string)EntityData["type"];
 
             if (EntityType == null)
@@ -51,42 +58,35 @@ namespace WikidataBioValidation
 
             var Descriptions = (JObject)EntityData["descriptions"];
             var Labels = (JObject)EntityData["labels"];
-            var SiteLinks = (JObject)EntityData["sitelinks"];
+            var WikipediaLinks = (JObject)EntityData["sitelinks"];
 
             if (Labels != null)
             {
-                var LabelObject = (JObject)Labels["en"];
-                if (LabelObject != null)
-                    Fields.Name = (string)LabelObject["value"]; ;
-
-                LabelObject = (JObject)Labels["en-gb"];
-                if (LabelObject != null)
-                    Fields.Name = (string)LabelObject["value"];
+                foreach (var Label in Labels.Properties())
+                {
+                    var LabelData = (JObject)Label.Value;
+                    Fields.Labels.Add((string)LabelData["language"], (string)LabelData["value"]);
+                }
             }
-            else
-                Fields.Name = "";
 
             if (Descriptions != null)
             {
-                var DescriptionObject = (JObject)Descriptions["en"];
-                if (DescriptionObject != null)
-                    Fields.Description = (string)DescriptionObject["value"]; ;
-
-                DescriptionObject = (JObject)Descriptions["en-gb"];
-                if (DescriptionObject != null)
-                    Fields.Description = (string)DescriptionObject["value"];
+                foreach (var Description in Descriptions.Properties())
+                {
+                    var DescriptionData = (JObject)Description.Value;
+                    string l = (string)DescriptionData["language"];
+                    Fields.Description.Add((string)DescriptionData["language"], (string)DescriptionData["value"]);
+                }
             }
-            else
-                Fields.Description = "";
 
-            if (SiteLinks != null)
+            if (WikipediaLinks != null)
             {
-                var SiteLink = (JObject)SiteLinks["enwiki"];
-                if (SiteLink != null)
-                    Fields.WikipediaLink = (string)SiteLink["title"];
+                foreach (var WikipediaLink in WikipediaLinks.Properties())
+                {
+                    var WikipediaLinkData = (JObject)WikipediaLink.Value;
+                    Fields.WikipediaLinks.Add((string)WikipediaLinkData["site"], (string)WikipediaLinkData["title"]);
+                }
             }
-            else
-                Fields.WikipediaLink = "";
 
             var Claims = (JObject)EntityData["claims"];
             if (Claims != null)
@@ -98,36 +98,33 @@ namespace WikidataBioValidation
 
                     if (Array.IndexOf(ClaimsRequired, ClaimKey) == -1) continue;
 
-
                     var ClaimData = (JArray)Claim.Value;
 
                     for (int ThisClaim = 0; ThisClaim < ClaimData.Count(); ThisClaim++)
                     {
-
                         //claimData is an array - another loop
 
-                        string thisValueString = "";
+                        WikidataClaim ThisClaimData = new WikidataClaim();
+
                         var MainSnak = (JObject)ClaimData[ThisClaim]["mainsnak"];
                         string SnakType = (string)MainSnak["snaktype"];
                         string SnakDataType = (string)MainSnak["datatype"];
                         var SnakDataValue = (JObject)MainSnak["datavalue"];
 
-                        Wikidate thisValueDateTime = new Wikidate();
-
                         if (SnakType == "novalue" || SnakType == "somevalue")
                         {
-                            thisValueString = SnakType;
+                            ThisClaimData.ValueAsString = SnakType;
                         }
                         else
                         {
                             if (SnakDataType == "string" || SnakDataType == "commonsMedia" || SnakDataType == "url")
                             {
-                                thisValueString = (string)SnakDataValue["value"];
+                                ThisClaimData.ValueAsString = (string)SnakDataValue["value"];
                             }
                             else if (SnakDataType == "wikibase-item")
                             {
                                 var ObjectValue = (JObject)SnakDataValue["value"];
-                                thisValueString = Cache.Lookup((string)ObjectValue["numeric-id"]);
+                                ThisClaimData.ValueAsString = Cache.RetrieveLabel((int)ObjectValue["numeric-id"]);
                             }
                             else if (SnakDataType == "time")
                             {
@@ -142,9 +139,9 @@ namespace WikidataBioValidation
                                 bool Julian = false;
                                 bool Gregorian = false;
 
-                                if (ValueTimeCalendarModel != "http://www.wikidata.org/entity/Q1985727")
+                                if (ValueTimeCalendarModel != "http://www.Wikidata.org/entity/Q1985727")
                                     Gregorian = true;
-                                if (ValueTimeCalendarModel == "http://www.wikidata.org/entity/Q1985786")
+                                if (ValueTimeCalendarModel == "http://www.Wikidata.org/entity/Q1985786")
                                     Julian = true;
 
                                 if (ValueTimePrecision == "11" || ValueTimePrecision == "10" || ValueTimePrecision == "9"
@@ -210,8 +207,9 @@ namespace WikidataBioValidation
                                     {
                                         Precision = DatePrecision.BCE;
                                     }
-                                    thisValueDateTime.thisPrecision = Precision;
-                                    thisValueDateTime.thisDate = thisDate;
+
+                                    ThisClaimData.ValueAsDateTime.thisDate = thisDate;
+                                    ThisClaimData.ValueAsDateTime.thisPrecision = Precision;
                                 }
                             }
                             else if (SnakDataType == "monolingualtext")
@@ -219,7 +217,8 @@ namespace WikidataBioValidation
                                 var ObjectValue = (JObject)SnakDataValue["value"];
                                 string ValueText = (string)ObjectValue["text"];
                                 string ValueLanguage = (string)ObjectValue["language"];
-                                thisValueString = ValueText + "(" + ValueLanguage + ")";
+                                // TODO Multi language handling
+                                ThisClaimData.ValueAsString = ValueText + "(" + ValueLanguage + ")";
                             }
                             else if (SnakDataType == "quantity")
                             {
@@ -229,29 +228,12 @@ namespace WikidataBioValidation
                                 string ValueUpper = (string)ObjectValue["upperBound"];
                                 string ValueLower = (string)ObjectValue["lowerBound"];
 
-                                thisValueString = "(" + ValueLower + " to " + ValueUpper + ") Unit " + ValueUnit;
+                                ThisClaimData.ValueAsString = "(" + ValueLower + " to " + ValueUpper + ") Unit " + ValueUnit;
                             }
 
                         }
-                        switch (ClaimKey)
-                        {
-                            case "P31":
-                                Fields.InstanceOf = thisValueString;
-                                break;
-                            case "P21":
-                                Fields.Gender = thisValueString;
-                                break;
-                            case "P27":
-                                Fields.CitizenOf = thisValueString;
-                                break;
-                            case "P569":
-                                Fields.DateOfBirth = thisValueDateTime;
-                                break;
-                            case "P570":
-                                Fields.DateOfDeath = thisValueDateTime;
-                                break;
-                        }
 
+                        Fields.Claims.Add(Convert.ToInt32(ClaimKey.Substring(1)),ThisClaimData);
                     }
 
                 }

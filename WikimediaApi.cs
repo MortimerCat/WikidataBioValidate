@@ -12,12 +12,13 @@ namespace WikidataBioValidation
     /// <summary>
     /// Abstract class that does the actual call to the Wiki websites.
     /// Must set Target Framework to .NET framework 4 (not client profile)
+    /// if you are using this in your own project, please change BOTNAME and CONTACT below
     /// </summary>
     public abstract class WikimediaApi
     {
         private int _Second = 0;
         private const string BOTNAME = "Perigliobot";
-        private const string CONTACT = "wikidata@lynxmail.co.uk";
+        private const string CONTACT = "Wikidata@lynxmail.co.uk";
 
         protected string Content { get; private set; }
 
@@ -70,7 +71,8 @@ namespace WikidataBioValidation
 
             try
             {
-                wikiClient.DownloadFile(APIurl + Parameters, Tempfile);
+                string FullURL = APIurl + Parameters;
+                wikiClient.DownloadFile(FullURL, Tempfile);
             }
             catch
             {

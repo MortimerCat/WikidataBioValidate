@@ -6,12 +6,18 @@ using System.IO;
 
 namespace WikidataBioValidation
 {
-
+    /// <summary>
+    /// Class to create a cache of property labels, cutting down on Wikidata traffic.
+    /// </summary>
     class WikidataCache
     {
-        Dictionary<string, string> _Cache = new Dictionary<string,string>();
-        private readonly string LABELCACHE = Path.GetTempPath() + "wikidataLabelCache";
+        Dictionary<int, string> _Cache = new Dictionary<int, string>();
+        private readonly string LABELCACHE = Path.GetTempPath() + "WikidataLabelCache";
 
+        /// <summary>
+        /// Constructor. Reads in existing cache from LABELCACHE
+        /// TODO Error trap for dodgy cache.
+        /// </summary>
         public WikidataCache()
         {
             if (!File.Exists(LABELCACHE))
@@ -21,52 +27,63 @@ namespace WikidataBioValidation
             {
                 using (StreamReader Sr = new StreamReader(LABELCACHE))
                 {
-                    string property;
-                    while ((property = Sr.ReadLine()) != null)
+                    string PropertyAsString;
+                    int Property;
+                    while ((PropertyAsString = Sr.ReadLine()) != null)
                     {
+                        Property = Convert.ToInt32(PropertyAsString);
                         string Description = Sr.ReadLine();
-                        _Cache.Add(property, Description);
+                        _Cache.Add(Property, Description);
                     }
                 }
             }
 
         }
 
-        public string RetrieveData(string itemid)
+        public string RetrieveLabel(int qcode)
         {
-            string Qcode = itemid;
             string Description = null;
-            if (_Cache.TryGetValue(itemid, out Description))
+            if (_Cache.TryGetValue(qcode, out Description))
             {
                 return Description;
             }
             else
             {
-                return Lookup(Qcode);
+                return LookupLabel(qcode);
             }
         }
 
-        public string Lookup(string qcode)
+        /// <summary>
+        /// If its a new property, look up label on Wikidata and add to cache.
+        /// </summary>
+        /// <param name="qcode"></param>
+        /// <returns></returns>
+        private string LookupLabel(int qcode)
         {
             WikidataIO IO = new WikidataIO();
             IO.Action = "wbgetentities";
             IO.Format = "json";
-            IO.Ids = "Q" + qcode;
+            IO.Ids = qcode;
             IO.Props = "labels";
-            IO.Languages = "en";
+            IO.Languages = "en|en-gb|ro";
             WikidataFields Fields = new WikidataFields();
 
             Fields = IO.GetData();
 
+            string Name = "";
+            if (!Fields.Labels.TryGetValue("en-gb", out  Name))
+                if (!Fields.Labels.TryGetValue("en", out  Name))
+                    Fields.Labels.TryGetValue("en", out  Name);
+
             using (StreamWriter Sw = File.AppendText(LABELCACHE))
             {
                 Sw.WriteLine(qcode);
-                Sw.WriteLine(Fields.Name);
+                Sw.WriteLine(Name);
             }
 
-            _Cache.Add(qcode, Fields.Name);
+            _Cache.Add(qcode, Name);
 
-            return Fields.Name;
+            return Name;
         }
 
     }
