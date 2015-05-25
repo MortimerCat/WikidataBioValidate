@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace WikidataBioValidation
 {
     /// <summary>
     /// Test and demo program that looks up a Wikidata item, finds the corresponding wikipedia article, finally comparing the two.
     /// </summary>
-    class Program
+    class WikiBioSample
     {
         static void Main(string[] args)
         {
-            int Qcode = 83235;
+            int Qcode = 83235;  // Horatio Nelson
 
             WikidataBiography WDperson = new WikidataBiography(Qcode);
                         
@@ -38,6 +35,13 @@ namespace WikidataBioValidation
 
 
             WikipediaBiography WPperson = new WikipediaBiography(WDperson.Wikilink);
+
+            Console.WriteLine("Categories...");
+            foreach (string Category in WPperson.Categories)
+                Console.WriteLine(Category);
+
+            Console.WriteLine(WPperson.Templates.Count.ToString() + " templates in article");
+
 
             if (WPperson.ErrorMessage != null)
             {

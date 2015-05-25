@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WikiAccess;
 
 namespace WikidataBioValidation
 {
@@ -11,11 +12,14 @@ namespace WikidataBioValidation
     class WikipediaBiography
     {
         private string Article;
-        List<string> Templates = new List<string>();
-        List<string> Categories = new List<string>();
+        public List<string> Templates;
+        public List<string> Categories;
 
-        public WikipediaBiography(string wikilink, string language ="enwiki")
+        public WikipediaBiography(string wikilink, string language = "enwiki")
         {
+            Templates = new List<string>();
+            Categories = new List<string>();
+
             WikipediaIO WIO = new WikipediaIO();
 
             WIO.Action = "query";
