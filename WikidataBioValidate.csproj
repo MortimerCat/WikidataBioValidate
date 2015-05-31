@@ -51,6 +51,7 @@
     <Compile Include="WikiBioSample.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WikidataBiography.cs" />
+    <Compile Include="WikidataBiographyErrorLog.cs" />
     <Compile Include="WikipediaBiography.cs" />
     <Compile Include="WikiValidate.cs" />
   </ItemGroup>
