@@ -11,12 +11,13 @@ namespace WikidataBioValidation
     /// </summary>
     class WikidataBiography
     {
+        private readonly string[] CLAIMSREQUIRED = { "P31", "P27", "P21", "P569", "P570" };
         public int Qcode { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string Wikilink { get; set; }
-        public Wikidate DateOfBirth { get; set; }
-        public Wikidate DateOfDeath { get; set; }
+        public List<Wikidate> DateOfBirth { get; set; }
+        public List<Wikidate> DateOfDeath { get; set; }
         public string Gender { get; set; }
         public string CitizenOf { get; set; }
         public string InstanceOf { get; set; }
@@ -32,7 +33,7 @@ namespace WikidataBioValidation
             WIO.Ids = qcode;
             WIO.Props = "claims|descriptions|labels|sitelinks";
             WIO.Languages = "";
-            WIO.ClaimsRequired = new string[5] { "P31", "P27", "P21", "P569", "P570" };
+            WIO.ClaimsRequired = CLAIMSREQUIRED;
 
             ExtractFields(WIO.GetData());
 
@@ -40,8 +41,8 @@ namespace WikidataBioValidation
 
         private void ExtractFields(WikidataFields wikidataFields)
         {
-            DateOfBirth = new Wikidate();
-            DateOfDeath = new Wikidate();
+            DateOfBirth = new List<Wikidate>();
+            DateOfDeath = new List<Wikidate>();
 
             string ThisName;
             if (!wikidataFields.Labels.TryGetValue("en-gb", out ThisName))
@@ -57,28 +58,39 @@ namespace WikidataBioValidation
             wikidataFields.WikipediaLinks.TryGetValue("enwiki", out ThisWikilink);
             Wikilink = ThisWikilink;
 
-            IEnumerable<WikidataClaim> Claims = from val in wikidataFields.Claims where val.Key == 27 select val.Value;
-            CitizenOf = "";
-            foreach (WikidataClaim Claim in Claims)
+            foreach (string thisClaim in CLAIMSREQUIRED)
             {
-                if (CitizenOf != "") CitizenOf += " & ";
-                CitizenOf += Claim.ValueAsString; 
+                IEnumerable<WikidataClaim> Claims = from val in wikidataFields.Claims where val.Key == Convert.ToInt32(thisClaim.Substring(1)) select val.Value;
+
+                foreach (WikidataClaim Claim in Claims)
+                {
+                    switch (thisClaim)
+                    {
+                        case "P21":
+                            if (!string.IsNullOrWhiteSpace(Gender)) Gender += " & ";
+                            Gender += Claim.ValueAsString;
+                            break;
+
+                        case "P27":
+                            if (!string.IsNullOrWhiteSpace(CitizenOf)) CitizenOf += " & ";
+                            CitizenOf += Claim.ValueAsString;
+                            break;
+
+                        case "P31":
+                            if (!string.IsNullOrWhiteSpace(InstanceOf)) InstanceOf += " & ";
+                            InstanceOf += Claim.ValueAsString;
+                            break;
+
+                        case "P569":
+                            DateOfBirth.Add(Claim.ValueAsDateTime);
+                            break;
+
+                        case "P570":
+                            DateOfDeath.Add(Claim.ValueAsDateTime);
+                            break;
+                    }
+                }
             }
-
-
-            /*
-            wikidataFields.Claims.TryGetValue(31, out Claim);
-            if (Claim != null) InstanceOf = Claim.ValueAsString;
-            wikidataFields.Claims.TryGetValue(21, out Claim);
-            if (Claim != null) Gender = Claim.ValueAsString;
-
-            wikidataFields.Claims.TryGetValue(569, out Claim);
-            if (Claim != null) DateOfBirth = Claim.ValueAsDateTime;
-            wikidataFields.Claims.TryGetValue(570, out Claim);
-            if (Claim != null) DateOfDeath = Claim.ValueAsDateTime;
-            */
         }
-
-        public IEnumerable<string> ErrorMessage { get; set; }
     }
 }

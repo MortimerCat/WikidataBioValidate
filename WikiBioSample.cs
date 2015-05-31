@@ -12,57 +12,42 @@ namespace WikidataBioValidation
             int Qcode = 255011;
 
             WikidataBiography WDperson = new WikidataBiography(Qcode);
-                        
+
             Console.WriteLine(WDperson.Qcode);
             Console.WriteLine(WDperson.Name);
             Console.WriteLine(WDperson.Gender);
             Console.WriteLine(WDperson.Description);
             Console.WriteLine(WDperson.InstanceOf);
             Console.WriteLine(WDperson.CitizenOf);
-            Console.WriteLine(WDperson.DateOfBirth.thisDate);
-            Console.WriteLine(WDperson.DateOfBirth.thisPrecision);
-            Console.WriteLine(WDperson.DateOfDeath.thisDate);
-            Console.WriteLine(WDperson.DateOfDeath.thisPrecision);
-            Console.WriteLine(WDperson.Wikilink);
-
-            if (WDperson.ErrorMessage != null)
+            if (WDperson.DateOfBirth.Count > 0)
             {
-                foreach (string errormessage in WDperson.ErrorMessage)
-                {
-                    Console.WriteLine(errormessage);
-                }
+                Console.WriteLine(WDperson.DateOfBirth[0].thisDate);
+                Console.WriteLine(WDperson.DateOfBirth[0].thisPrecision);
             }
-
+            if (WDperson.DateOfDeath.Count > 0)
+            {
+                Console.WriteLine(WDperson.DateOfDeath[0].thisDate);
+                Console.WriteLine(WDperson.DateOfDeath[0].thisPrecision);
+            }
+            Console.WriteLine(WDperson.Wikilink);
 
             WikipediaBiography WPperson = new WikipediaBiography(WDperson.Wikilink);
 
-            Console.WriteLine("Categories...");
-            foreach (string Category in WPperson.Categories)
-                Console.WriteLine(Category);
-
+            Console.WriteLine(WPperson.Categories.Count.ToString() + " categories in article");
             Console.WriteLine(WPperson.Templates.Count.ToString() + " templates in article");
 
+            /*
 
-            if (WPperson.ErrorMessage != null)
-            {
-                foreach (string errormessage in WPperson.ErrorMessage)
-                {
-                    Console.WriteLine(errormessage);
-                }
-            }
+                        WikiValidate Vperson = new WikiValidate(WDperson, WPperson);
 
-/*
-
-            WikiValidate Vperson = new WikiValidate(WDperson, WPperson);
-
-            if (Vperson.ErrorMessage != null)
-            {
-                foreach (string errormessage in WPperson.ErrorMessage)
-                {
-                    Console.WriteLine(errormessage);
-                }
-            }
- */
+                        if (Vperson.ErrorMessage != null)
+                        {
+                            foreach (string errormessage in WPperson.ErrorMessage)
+                            {
+                                Console.WriteLine(errormessage);
+                            }
+                        }
+             */
         }
     }
 }
