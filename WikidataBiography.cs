@@ -20,9 +20,10 @@ namespace WikidataBioValidation
         public string Gender { get; set; }
         public string CitizenOf { get; set; }
         public string InstanceOf { get; set; }
-
+            
         public WikidataBiography(int qcode)
         {
+            BError = new WikidataBiographyErrorLog();
             Qcode = qcode;
 
             WikidataIO WIO = new WikidataIO();
@@ -35,8 +36,9 @@ namespace WikidataBioValidation
             WIO.ClaimsRequired = new string[5] { "P31", "P27", "P21", "P569", "P570" };
 
             ExtractFields(WIO.GetData());
-
         }
+
+
 
         private void ExtractFields(WikidataFields wikidataFields)
         {
