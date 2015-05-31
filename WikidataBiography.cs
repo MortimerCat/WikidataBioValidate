@@ -21,10 +21,13 @@ namespace WikidataBioValidation
         public string Gender { get; set; }
         public string CitizenOf { get; set; }
         public string InstanceOf { get; set; }
-            
+        public WikidataBiographyErrorLog BErrors { get; set; }
+        public bool Found { get; set; }
+        private List<ErrorLog> IOErrors { get; set; }
+
         public WikidataBiography(int qcode)
         {
-            BError = new WikidataBiographyErrorLog();
+            BErrors = new WikidataBiographyErrorLog();
             Qcode = qcode;
 
             WikidataIO WIO = new WikidataIO();
@@ -36,7 +39,19 @@ namespace WikidataBioValidation
             WIO.Languages = "";
             WIO.ClaimsRequired = CLAIMSREQUIRED;
 
-            ExtractFields(WIO.GetData());
+            WikidataFields Fields = WIO.GetData();
+            IOErrors = WIO.GetErrors();
+
+            if (Fields == null)
+            {
+                Found = false;
+                BErrors.CannotRetrieveData();
+            }
+            else
+            {
+                Found = true;
+                ExtractFields(Fields);
+            }
         }
 
 
@@ -93,6 +108,13 @@ namespace WikidataBioValidation
                     }
                 }
             }
+        }
+
+        public List<ErrorLog> GetErrors()
+        {
+            List<ErrorLog> Errors = IOErrors;
+                Errors.Add(BErrors);
+            return Errors;
         }
     }
 }

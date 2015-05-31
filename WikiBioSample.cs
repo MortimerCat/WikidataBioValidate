@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using WikiAccess;
 
 namespace WikidataBioValidation
 {
@@ -9,33 +11,59 @@ namespace WikidataBioValidation
     {
         static void Main(string[] args)
         {
-            int Qcode = 255011;
+            int Qcode = 15818798;
 
             WikidataBiography WDperson = new WikidataBiography(Qcode);
+            List<ErrorLog> Errors = WDperson.GetErrors();
 
-            Console.WriteLine(WDperson.Qcode);
-            Console.WriteLine(WDperson.Name);
-            Console.WriteLine(WDperson.Gender);
-            Console.WriteLine(WDperson.Description);
-            Console.WriteLine(WDperson.InstanceOf);
-            Console.WriteLine(WDperson.CitizenOf);
-            if (WDperson.DateOfBirth.Count > 0)
+            foreach (ErrorLog thisLog in Errors)
             {
-                Console.WriteLine(WDperson.DateOfBirth[0].thisDate);
-                Console.WriteLine(WDperson.DateOfBirth[0].thisPrecision);
+                if (thisLog != null)
+                {
+                    foreach (ErrorMessage Error in thisLog.Errors)
+                    {
+                        Console.WriteLine(Error.ToString());
+                    }
+                }
             }
-            if (WDperson.DateOfDeath.Count > 0)
+
+
+            if (WDperson.Found == true)
             {
-                Console.WriteLine(WDperson.DateOfDeath[0].thisDate);
-                Console.WriteLine(WDperson.DateOfDeath[0].thisPrecision);
+                Console.WriteLine(WDperson.Qcode);
+                Console.WriteLine(WDperson.Name);
+                Console.WriteLine(WDperson.Gender);
+                Console.WriteLine(WDperson.Description);
+                Console.WriteLine(WDperson.InstanceOf);
+                Console.WriteLine(WDperson.CitizenOf);
+                if (WDperson.DateOfBirth.Count > 0)
+                {
+                    Console.WriteLine(WDperson.DateOfBirth[0].thisDate);
+                    Console.WriteLine(WDperson.DateOfBirth[0].thisPrecision);
+                }
+                if (WDperson.DateOfDeath.Count > 0)
+                {
+                    Console.WriteLine(WDperson.DateOfDeath[0].thisDate);
+                    Console.WriteLine(WDperson.DateOfDeath[0].thisPrecision);
+                }
+                Console.WriteLine(WDperson.Wikilink);
+
+                WikipediaBiography WPperson = new WikipediaBiography(WDperson.Wikilink);
+
+                Console.WriteLine(WPperson.Categories.Count.ToString() + " categories in article");
+                Console.WriteLine(WPperson.Templates.Count.ToString() + " templates in article");
+
+                foreach (ErrorLog thisLog in WPperson.GetErrors())
+                {
+                    if (thisLog != null)
+                    {
+                        foreach (ErrorMessage Error in thisLog.Errors)
+                        {
+                            Console.WriteLine(Error.ToString());
+                        }
+                    }
+                }
             }
-            Console.WriteLine(WDperson.Wikilink);
-
-            WikipediaBiography WPperson = new WikipediaBiography(WDperson.Wikilink);
-
-            Console.WriteLine(WPperson.Categories.Count.ToString() + " categories in article");
-            Console.WriteLine(WPperson.Templates.Count.ToString() + " templates in article");
-
             /*
 
                         WikiValidate Vperson = new WikiValidate(WDperson, WPperson);

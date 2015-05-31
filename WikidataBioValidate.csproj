@@ -53,6 +53,7 @@
     <Compile Include="WikidataBiography.cs" />
     <Compile Include="WikidataBiographyErrorLog.cs" />
     <Compile Include="WikipediaBiography.cs" />
+    <Compile Include="WikipediaBiographyErrorLog.cs" />
     <Compile Include="WikiValidate.cs" />
   </ItemGroup>
   <ItemGroup>
