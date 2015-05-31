@@ -9,7 +9,7 @@ namespace WikidataBioValidation
     {
         static void Main(string[] args)
         {
-            int Qcode = 83235;  // Horatio Nelson
+            int Qcode = 255011;
 
             WikidataBiography WDperson = new WikidataBiography(Qcode);
                         

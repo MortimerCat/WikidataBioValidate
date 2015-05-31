@@ -57,19 +57,26 @@ namespace WikidataBioValidation
             wikidataFields.WikipediaLinks.TryGetValue("enwiki", out ThisWikilink);
             Wikilink = ThisWikilink;
 
-            WikidataClaim Claim;
+            IEnumerable<WikidataClaim> Claims = from val in wikidataFields.Claims where val.Key == 27 select val.Value;
+            CitizenOf = "";
+            foreach (WikidataClaim Claim in Claims)
+            {
+                if (CitizenOf != "") CitizenOf += " & ";
+                CitizenOf += Claim.ValueAsString; 
+            }
+
+
+            /*
             wikidataFields.Claims.TryGetValue(31, out Claim);
             if (Claim != null) InstanceOf = Claim.ValueAsString;
             wikidataFields.Claims.TryGetValue(21, out Claim);
             if (Claim != null) Gender = Claim.ValueAsString;
-            wikidataFields.Claims.TryGetValue(27, out Claim);
-            if (Claim != null) CitizenOf = Claim.ValueAsString;
 
             wikidataFields.Claims.TryGetValue(569, out Claim);
             if (Claim != null) DateOfBirth = Claim.ValueAsDateTime;
             wikidataFields.Claims.TryGetValue(570, out Claim);
             if (Claim != null) DateOfDeath = Claim.ValueAsDateTime;
-
+            */
         }
 
         public IEnumerable<string> ErrorMessage { get; set; }
