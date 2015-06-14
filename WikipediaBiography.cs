@@ -14,14 +14,21 @@ namespace WikidataBioValidation
         private string Article;
         public List<string> Templates;
         public List<string> Categories;
+        public string DefaultSort;
         private List<ErrorLog> IOErrors { get; set; }
-        public WikipediaBiographyErrorLog GErrors { get; set; }
+        public WikipediaBiographyErrorLog WikipediaBioErrors { get; set; }
+        private ErrorLog TemplateErrors { get; set; }
+        public Wikidate BirthDate;
+        public Wikidate DeathDate;
 
         public WikipediaBiography(string wikilink, string language = "enwiki")
         {
             Templates = new List<string>();
             Categories = new List<string>();
-            GErrors = new WikipediaBiographyErrorLog();
+            BirthDate = new Wikidate();
+            DeathDate = new Wikidate();
+
+            WikipediaBioErrors = new WikipediaBiographyErrorLog();
 
             WikipediaIO WIO = new WikipediaIO();
 
@@ -32,13 +39,21 @@ namespace WikidataBioValidation
             WIO.Redirects = "yes";
             WIO.Titles = wikilink;
 
-            if (WIO.GetData())
-            {
-                Article = WIO.Article;
-                Templates = WIO.Templates;
-                Categories = WIO.Categories;
-                IOErrors = WIO.GetErrors();
-            }
+            bool Result = WIO.GetData();
+            IOErrors = WIO.GetErrors();
+
+            if (!Result) return;
+
+            Article = WIO.Article;
+            Templates = WIO.Templates;
+            Categories = WIO.Categories;
+            DefaultSort = GetDefaultSort();
+
+            BirthDeathTemplate DateExtract = new BirthDeathTemplate(Templates);
+            BirthDate = DateExtract.DOB;
+            DeathDate = DateExtract.DOD;
+            TemplateErrors = DateExtract.TemplateErrors;
+
         }
 
         private string GetDefaultSort()
@@ -46,7 +61,7 @@ namespace WikidataBioValidation
             int startpoint = Article.ToLower().IndexOf("{{defaultsort:", StringComparison.Ordinal);
             if (startpoint == -1)
             {
-                // Error noDEFAULTSORT
+                WikipediaBioErrors.NoDefaultSort();
                 return "";
             }
             else
@@ -59,7 +74,7 @@ namespace WikidataBioValidation
                 }
                 else
                 {
-                    // Error invalidDEFAULTSORT
+                    WikipediaBioErrors.InvalidDefaultSort();
                     return "";
                 }
             }
@@ -68,8 +83,8 @@ namespace WikidataBioValidation
         public List<ErrorLog> GetErrors()
         {
             List<ErrorLog> Errors = IOErrors;
-         
-                Errors.Add(GErrors);
+            Errors.Add(WikipediaBioErrors);
+            Errors.Add(TemplateErrors);
             return Errors;
         }
     }

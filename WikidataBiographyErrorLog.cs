@@ -14,7 +14,9 @@ namespace WikidataBioValidation
         public WikidataBiographyErrorLog()
         {
             Errors = new List<ErrorMessage>();
-//            Errors.Add(new ErrorMessage(Module, 0, "WikidataBiography module"));
+#if DEBUG
+            Errors.Add(new ErrorMessage(Module, 0, "WikidataBiography module"));
+#endif
         }
 
         public void CannotRetrieveData()

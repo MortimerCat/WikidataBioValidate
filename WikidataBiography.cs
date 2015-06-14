@@ -21,7 +21,7 @@ namespace WikidataBioValidation
         public string Gender { get; set; }
         public string CitizenOf { get; set; }
         public string InstanceOf { get; set; }
-        public WikidataBiographyErrorLog BErrors { get; set; }
+        public WikidataBiographyErrorLog WikidataBioErrors { get; set; }
         public bool Found { get; set; }
         public bool Valid { get; set; }
         private List<ErrorLog> IOErrors { get; set; }
@@ -29,7 +29,7 @@ namespace WikidataBioValidation
 
         public WikidataBiography(int qcode)
         {
-            BErrors = new WikidataBiographyErrorLog();
+            WikidataBioErrors = new WikidataBiographyErrorLog();
             Qcode = qcode;
 
             WikidataIO WIO = new WikidataIO();
@@ -47,7 +47,7 @@ namespace WikidataBioValidation
             if (Fields == null)
             {
                 Found = false;
-                BErrors.CannotRetrieveData();
+                WikidataBioErrors.CannotRetrieveData();
             }
             else
             {
@@ -64,19 +64,19 @@ namespace WikidataBioValidation
             string ThisName;
             if (!wikidataFields.Labels.TryGetValue("en-gb", out ThisName))
                 if (!wikidataFields.Labels.TryGetValue("en", out ThisName))
-                    BErrors.NoEnglishName();
+                    WikidataBioErrors.NoEnglishName();
 
             Name = ThisName;
 
             string ThisDescription = "";
             if (!wikidataFields.Description.TryGetValue("en-gb", out ThisDescription))
                 if (!wikidataFields.Description.TryGetValue("en", out ThisDescription))
-                    BErrors.NoEnglishDescription();
+                    WikidataBioErrors.NoEnglishDescription();
             Description = ThisDescription;
 
             string ThisWikilink = "";
             if (!wikidataFields.WikipediaLinks.TryGetValue("enwiki", out ThisWikilink))
-                BErrors.NoENwiki();
+                WikidataBioErrors.NoENwiki();
             Wikilink = ThisWikilink;
 
             foreach (string thisClaim in CLAIMSREQUIRED)
@@ -114,11 +114,11 @@ namespace WikidataBioValidation
 
         private void FinalValidation()
         {
-            if (string.IsNullOrWhiteSpace(Gender)) BErrors.NoGender();
-            if (string.IsNullOrWhiteSpace(InstanceOf)) BErrors.NoInstance();
-            if (string.IsNullOrWhiteSpace(CitizenOf)) BErrors.NoCitizenship();
-            if (!isHuman) BErrors.NotHuman();
-            if (DateOfBirth.Count == 0) BErrors.NoBirth();
+            if (string.IsNullOrWhiteSpace(Gender)) WikidataBioErrors.NoGender();
+            if (string.IsNullOrWhiteSpace(InstanceOf)) WikidataBioErrors.NoInstance();
+            if (string.IsNullOrWhiteSpace(CitizenOf)) WikidataBioErrors.NoCitizenship();
+            if (!isHuman) WikidataBioErrors.NotHuman();
+            if (DateOfBirth.Count == 0) WikidataBioErrors.NoBirth();
 
             if (DateOfBirth.Count != 0)
             {
@@ -132,17 +132,17 @@ namespace WikidataBioValidation
         private void ValidateLiving()
         {
             Wikidate thisBirth = DateOfBirth.First();
-            if (Wikidate.isCalculatable(thisBirth.thisPrecision))
+            if (Wikidate.isCalculable(thisBirth.thisPrecision))
             {
                TimeSpan Span = DateTime.Now - thisBirth.thisDate;
                int Age = (int)Math.Ceiling((double)(Span.Days / 365.25));
 
                if (Age < 16)
                {
-                       if (!ChildException()) BErrors.TooYoung();
+                       if (!ChildException()) WikidataBioErrors.TooYoung();
                }
                if (Age > 120)
-                   BErrors.NoDeath();
+                   WikidataBioErrors.NoDeath();
             }
 
         }
@@ -152,19 +152,19 @@ namespace WikidataBioValidation
             Wikidate thisBirth = DateOfBirth.First();
             Wikidate thisDeath = DateOfDeath.First();
 
-            if (Wikidate.isCalculatable(thisBirth.thisPrecision) && Wikidate.isCalculatable(thisDeath.thisPrecision))
+            if (Wikidate.isCalculable(thisBirth.thisPrecision) && Wikidate.isCalculable(thisDeath.thisPrecision))
             {
                 TimeSpan Span = thisDeath.thisDate - thisBirth.thisDate;
                 int Age = (int)Math.Ceiling((double)(Span.Days / 365.25));
 
                 if (Age < 0)
-                    BErrors.BirthAfterDeath();
+                    WikidataBioErrors.BirthAfterDeath();
                 else if (Age < 16)
                 {
-                    if (!ChildException()) BErrors.DiedTooYoung();
+                    if (!ChildException()) WikidataBioErrors.DiedTooYoung();
                 }
                 if (Age > 120)
-                    BErrors.DiedTooOld();
+                    WikidataBioErrors.DiedTooOld();
             }
 
         }
@@ -183,27 +183,27 @@ namespace WikidataBioValidation
         private void ValidateP570(WikidataClaim Claim)
         {
             Wikidate thisDate= Claim.ValueAsDateTime;
-            if (DateOfDeath.Count == 1) BErrors.MultipleDeath();
+            if (DateOfDeath.Count == 1) WikidataBioErrors.MultipleDeath();
             DateOfDeath.Add(thisDate);
 
-            if (thisDate.thisDate > DateTime.Now) BErrors.FutureDeath();
+            if (thisDate.thisDate > DateTime.Now) WikidataBioErrors.FutureDeath();
 
         }
 
         private void ValidateP569(WikidataClaim Claim)
         {
             Wikidate thisDate = Claim.ValueAsDateTime;
-            if (DateOfBirth.Count == 1) BErrors.MultipleBirth();
+            if (DateOfBirth.Count == 1) WikidataBioErrors.MultipleBirth();
             DateOfBirth.Add(Claim.ValueAsDateTime);
 
-            if (thisDate.thisDate > DateTime.Now) BErrors.FutureBirth();
+            if (thisDate.thisDate > DateTime.Now) WikidataBioErrors.FutureBirth();
         }
 
         private void ValidateP31(WikidataClaim Claim)
         {
             if (!string.IsNullOrWhiteSpace(InstanceOf))
             {
-                BErrors.MultipleInstance();
+                WikidataBioErrors.MultipleInstance();
                 InstanceOf += " & ";
             }
 
@@ -222,14 +222,14 @@ namespace WikidataBioValidation
             if (Claim.Qcode == 2985549) return; // mononymous
             if (Claim.Qcode == 484188) return; // Serial killer
 
-            BErrors.UnrecognisedInstance(Claim.Qcode, Claim.ToString());
+            WikidataBioErrors.UnrecognisedInstance(Claim.Qcode, Claim.ToString());
         }
 
         private void ValidateP27(WikidataClaim Claim)
         {
             if (!string.IsNullOrWhiteSpace(CitizenOf))
             {
-                BErrors.MultipleCitizenship();
+                WikidataBioErrors.MultipleCitizenship();
                 CitizenOf += " & ";
             }
             CitizenOf += Claim.ValueAsString;
@@ -239,7 +239,7 @@ namespace WikidataBioValidation
         {
             if (!string.IsNullOrWhiteSpace(Gender))
             {
-                BErrors.MultipleGender();
+                WikidataBioErrors.MultipleGender();
                 Gender += " & ";
             }
             Gender += Claim.ValueAsString;
@@ -249,7 +249,7 @@ namespace WikidataBioValidation
             if (Claim.Qcode == 2449503) return;  // transgender male
             if (Claim.Qcode == 1052281) return;  // transgender female
 
-            BErrors.UnrecognisedGender(Claim.Qcode, Claim.ToString());
+            WikidataBioErrors.UnrecognisedGender(Claim.Qcode, Claim.ToString());
         }
 
 
@@ -257,7 +257,7 @@ namespace WikidataBioValidation
         public List<ErrorLog> GetErrors()
         {
             List<ErrorLog> Errors = IOErrors;
-            Errors.Add(BErrors);
+            Errors.Add(WikidataBioErrors);
             return Errors;
         }
     }

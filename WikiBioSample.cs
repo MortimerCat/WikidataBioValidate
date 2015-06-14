@@ -11,7 +11,7 @@ namespace WikidataBioValidation
     {
         static void Main(string[] args)
         {
-            int Qcode = 6214027;
+            int Qcode = 219640;
 
             WikidataBiography WDperson = new WikidataBiography(Qcode);
             List<ErrorLog> Errors = WDperson.GetErrors();
@@ -40,22 +40,23 @@ namespace WikidataBioValidation
                 Console.WriteLine(WDperson.CitizenOf);
                 if (WDperson.DateOfBirth.Count > 0)
                 {
-                    Console.WriteLine(WDperson.DateOfBirth[0].thisDate);
-                    Console.WriteLine(WDperson.DateOfBirth[0].thisPrecision);
+                    Console.WriteLine(WDperson.DateOfBirth[0].ToString());
                 }
                 if (WDperson.DateOfDeath.Count > 0)
                 {
-                    Console.WriteLine(WDperson.DateOfDeath[0].thisDate);
-                    Console.WriteLine(WDperson.DateOfDeath[0].thisPrecision);
+                    Console.WriteLine(WDperson.DateOfDeath[0].ToString());
                 }
                 Console.WriteLine(WDperson.Wikilink);
-                Console.WriteLine("-----  End of Wikidata info-----");
+                Console.WriteLine("-----  End of Wikidata info -----");
 
-
+                Console.WriteLine("--- Wikipedia article " + WDperson.Wikilink + " ---");
                 WikipediaBiography WPperson = new WikipediaBiography(WDperson.Wikilink);
 
                 Console.WriteLine(WPperson.Categories.Count.ToString() + " categories in article");
                 Console.WriteLine(WPperson.Templates.Count.ToString() + " templates in article");
+                Console.WriteLine("DEFAULTSORT " + WPperson.DefaultSort);
+                Console.WriteLine("DOB : " + WPperson.BirthDate.ToString());
+                Console.WriteLine("DOD : " + WPperson.DeathDate.ToString());
 
                 foreach (ErrorLog thisLog in WPperson.GetErrors())
                 {
@@ -67,6 +68,8 @@ namespace WikidataBioValidation
                         }
                     }
                 }
+                Console.WriteLine("--- End of Wikipedia article ---");
+
             }
             /*
 
