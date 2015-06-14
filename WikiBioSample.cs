@@ -11,11 +11,12 @@ namespace WikidataBioValidation
     {
         static void Main(string[] args)
         {
-            int Qcode = 15818798;
+            int Qcode = 6214027;
 
             WikidataBiography WDperson = new WikidataBiography(Qcode);
             List<ErrorLog> Errors = WDperson.GetErrors();
 
+            Console.WriteLine("-----  Wikidata errors-----");
             foreach (ErrorLog thisLog in Errors)
             {
                 if (thisLog != null)
@@ -26,10 +27,11 @@ namespace WikidataBioValidation
                     }
                 }
             }
-
+            Console.WriteLine("-----  End of Wikidata errors-----");
 
             if (WDperson.Found == true)
             {
+                Console.WriteLine("-----  Wikidata info-----");
                 Console.WriteLine(WDperson.Qcode);
                 Console.WriteLine(WDperson.Name);
                 Console.WriteLine(WDperson.Gender);
@@ -47,6 +49,8 @@ namespace WikidataBioValidation
                     Console.WriteLine(WDperson.DateOfDeath[0].thisPrecision);
                 }
                 Console.WriteLine(WDperson.Wikilink);
+                Console.WriteLine("-----  End of Wikidata info-----");
+
 
                 WikipediaBiography WPperson = new WikipediaBiography(WDperson.Wikilink);
 
