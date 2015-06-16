@@ -11,7 +11,7 @@ namespace WikidataBioValidation
     {
         static void Main(string[] args)
         {
-            int Qcode = 219640;
+            int Qcode = 4773512;
 
             WikidataBiography WDperson = new WikidataBiography(Qcode);
             List<ErrorLog> Errors = WDperson.GetErrors();

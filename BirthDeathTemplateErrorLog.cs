@@ -24,5 +24,28 @@ namespace WikidataBioValidation
             Errors.Add(new ErrorMessage(Module, 1, "No templates"));
         }
 
+        public void UnrecognisedTemplate(string template)
+        {
+            Errors.Add(new ErrorMessage(Module, 2, "Unrecognised template " + template));
+        }
+
+        public void ExceptionThrown(string template,string systemMessage)
+        {
+            Errors.Add(new ErrorMessage(Module, 3, "Exception thrown extracting date " + template + " " + systemMessage));
+        }
+
+        public void SecondBirth(string template)
+        {
+            Errors.Add(new ErrorMessage(Module, 4, "Alternative date of birth found in " + template));
+        }
+
+        public void SecondDeath(string template)
+        {
+            Errors.Add(new ErrorMessage(Module, 5, "Alternative date of death found in " + template));
+        }
+
+
+
+
     }
 }

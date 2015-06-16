@@ -12,7 +12,7 @@ namespace WikidataBioValidation
     class WikipediaBiography
     {
         private string Article;
-        public List<string> Templates;
+        public List<string[]> Templates;
         public List<string> Categories;
         public string DefaultSort;
         private List<ErrorLog> IOErrors { get; set; }
@@ -23,7 +23,7 @@ namespace WikidataBioValidation
 
         public WikipediaBiography(string wikilink, string language = "enwiki")
         {
-            Templates = new List<string>();
+            Templates = new List<string[]>();
             Categories = new List<string>();
             BirthDate = new Wikidate();
             DeathDate = new Wikidate();
@@ -45,8 +45,8 @@ namespace WikidataBioValidation
             if (!Result) return;
 
             Article = WIO.Article;
-            Templates = WIO.Templates;
-            Categories = WIO.Categories;
+            Templates = WIO.TemplatesUsed;
+            Categories = WIO.CategoriesUsed;
             DefaultSort = GetDefaultSort();
 
             BirthDeathTemplate DateExtract = new BirthDeathTemplate(Templates);
