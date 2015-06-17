@@ -28,6 +28,7 @@ namespace WikidataBioValidation
 
         private void ExtractDates()
         {
+            bool FoundOne = false;
             foreach (string[] Template in Templates)
             {
                 string TemplateName = Template[0];
@@ -36,19 +37,22 @@ namespace WikidataBioValidation
                 if (IgnoreTemplate(TemplateName)) continue;
 
                 if (TemplateName.IndexOf("birth") != -1 || TemplateName.IndexOf("death") != -1)
-                    ExtractBirthDeathDates(TemplateName, FullTemplate);
+                    if (ExtractBirthDeathDates(TemplateName, FullTemplate)) FoundOne = true;
             }
+
+            if (FoundOne == false) TemplateErrors.NoBirthDeathTemplate();
         }
 
-        private void ExtractBirthDeathDates(string TemplateName, string FullTemplate)
+        private bool ExtractBirthDeathDates(string TemplateName, string FullTemplate)
         {
+            bool FoundOne = true;
             string[] TemplateParams = FullTemplate.Split("|".ToCharArray());
             int StartPos = 1;
             DateTime t_birth = DateTime.MinValue;
             DateTime t_death = DateTime.MinValue;
             DatePrecision t_birthAccuracy = DatePrecision.Day;
             DatePrecision t_deathAccuracy = DatePrecision.Day;
-
+            
             try
             {
                 if (TemplateParams[1].Substring(0, 2) == "mf" || TemplateParams[1].Substring(0, 2) == "df")
@@ -59,7 +63,6 @@ namespace WikidataBioValidation
                     case "birth date and age":
                     case "birthdate and age":
                     case "birth date":
-
                         if (TemplateParams[StartPos + 1] == "0" || TemplateParams[StartPos + 2] == "0")
                         {
                             t_birth = new DateTime(Convert.ToInt32(TemplateParams[StartPos]), 1, 1);
@@ -85,7 +88,6 @@ namespace WikidataBioValidation
 
                     case "birth year and age":
                     case "birth year":
-
                         t_birth = new DateTime(Convert.ToInt32(TemplateParams[StartPos]), 1, 1);
                         t_birthAccuracy = DatePrecision.Year;
                         break;
@@ -96,7 +98,6 @@ namespace WikidataBioValidation
                         t_birth = new DateTime(Convert.ToInt32(TemplateParams[StartPos + 1]), 1, 1);
                         t_birthAccuracy = DatePrecision.Year;
                         break;
-
 
                     case "death year":
                         t_death = new DateTime(Convert.ToInt32(TemplateParams[StartPos]), 1, 1);
@@ -115,7 +116,6 @@ namespace WikidataBioValidation
                             t_deathAccuracy = DatePrecision.Year;
                         }
                         else
-
                             t_death = new DateTime(Convert.ToInt32(TemplateParams[StartPos]), Convert.ToInt32(TemplateParams[StartPos + 1]), Convert.ToInt32(TemplateParams[StartPos + 2]));
 
 
@@ -130,6 +130,7 @@ namespace WikidataBioValidation
 
 
                     default:
+                        FoundOne = false;
                         TemplateErrors.UnrecognisedTemplate(TemplateName);
                         break;
                 }
@@ -137,9 +138,8 @@ namespace WikidataBioValidation
             catch (Exception exception)
             {
                 TemplateErrors.ExceptionThrown(TemplateName, exception.Message);
-                return;
+                return FoundOne;
             }
-
 
             if (DOB.thisDate != DateTime.MinValue && t_birth != null)
             {
@@ -162,6 +162,7 @@ namespace WikidataBioValidation
                 DOD.thisDate = t_death;
                 DOD.thisPrecision = t_deathAccuracy;
             }
+            return FoundOne;
         }
 
         private bool IgnoreTemplate(string template)

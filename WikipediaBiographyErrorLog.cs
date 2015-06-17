@@ -14,7 +14,7 @@ namespace WikidataBioValidation
         public WikipediaBiographyErrorLog()
         {
             Errors = new List<ErrorMessage>();
-#if DBEUG
+#if DEBUG
             Errors.Add(new ErrorMessage(Module, 0, "WikipediaBiography module"));
 #endif
         }
@@ -33,5 +33,7 @@ namespace WikidataBioValidation
         {
             Errors.Add(new ErrorMessage(Module, 3, "Invalid DEFAULTSORT"));
         }
+
+
     }
 }

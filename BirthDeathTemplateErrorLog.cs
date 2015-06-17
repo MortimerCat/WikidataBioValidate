@@ -31,7 +31,7 @@ namespace WikidataBioValidation
 
         public void ExceptionThrown(string template,string systemMessage)
         {
-            Errors.Add(new ErrorMessage(Module, 3, "Exception thrown extracting date " + template + " " + systemMessage));
+            Errors.Add(new ErrorMessage(Module, 3, "Exception thrown extracting date " + template, systemMessage));
         }
 
         public void SecondBirth(string template)
@@ -44,8 +44,9 @@ namespace WikidataBioValidation
             Errors.Add(new ErrorMessage(Module, 5, "Alternative date of death found in " + template));
         }
 
-
-
-
+        public void NoBirthDeathTemplate()
+        {
+            Errors.Add(new ErrorMessage(Module,6,"No Birth/Death template in article"));
+        }
     }
 }

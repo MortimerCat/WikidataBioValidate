@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using WikiAccess;
 
 namespace WikidataBioValidation
@@ -18,6 +16,7 @@ namespace WikidataBioValidation
         private List<ErrorLog> IOErrors { get; set; }
         public WikipediaBiographyErrorLog WikipediaBioErrors { get; set; }
         private ErrorLog TemplateErrors { get; set; }
+        private ErrorLog CategoryErrors { get; set; }
         public Wikidate BirthDate;
         public Wikidate DeathDate;
 
@@ -54,6 +53,10 @@ namespace WikidataBioValidation
             DeathDate = DateExtract.DOD;
             TemplateErrors = DateExtract.TemplateErrors;
 
+            BirthDeathCategories CatAnalysis = new BirthDeathCategories("Wikipedia", Categories, BirthDate, DeathDate);
+            CatAnalysis.AnalyseArticle();
+            CatAnalysis.CompareDates();
+            CategoryErrors = CatAnalysis.CategoryErrors;
         }
 
         private string GetDefaultSort()
@@ -85,6 +88,7 @@ namespace WikidataBioValidation
             List<ErrorLog> Errors = IOErrors;
             Errors.Add(WikipediaBioErrors);
             Errors.Add(TemplateErrors);
+            Errors.Add(CategoryErrors);
             return Errors;
         }
     }

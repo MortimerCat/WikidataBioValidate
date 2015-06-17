@@ -45,7 +45,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -63,6 +63,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BirthDeathCategories.cs" />
+    <Compile Include="BirthDeathCategoriesErrorLog.cs" />
     <Compile Include="BirthDeathTemplate.cs" />
     <Compile Include="BirthDeathTemplateErrorLog.cs" />
     <Compile Include="WikiBioSample.cs" />
