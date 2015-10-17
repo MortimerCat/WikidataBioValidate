@@ -30,17 +30,17 @@ namespace WikidataBioValidation
             Categories = categories;
             DOB = dob;
             DOD = dod;
-            CategoryErrors = new BirthDeathCategoriesErrorLog();
+            CategoryErrors = new BirthDeathCategoriesErrorLog(WhereDates);
         }
 
         public void AnalyseArticle()
         {
             CategoryScan();
-            if (!BirthYearCat && !BirthDecadeCat && !BirthYearNotKnownCat && !BirthDateNotAccurateCat) 
+            if (!BirthYearCat && !BirthDecadeCat && !BirthYearNotKnownCat && !BirthDateNotAccurateCat)
                 CategoryErrors.NoBirthCategories();
-            if (LivingPeopleCat && (DeathYearCat || DeathDecadeCat || DeathYearNotKnownCat || DeathDateNotAccurateCat)) 
+            if (LivingPeopleCat && (DeathYearCat || DeathDecadeCat || DeathYearNotKnownCat || DeathDateNotAccurateCat))
                 CategoryErrors.LivingandDeathCat();
-            if (!LivingPeopleCat && !DeathYearCat && !DeathDecadeCat && !DeathYearNotKnownCat && !DeathDateNotAccurateCat) 
+            if (!LivingPeopleCat && !DeathYearCat && !DeathDecadeCat && !DeathYearNotKnownCat && !DeathDateNotAccurateCat)
                 CategoryErrors.NoLivingorDeathCat();
             if (BirthYearCat && BirthYearNotKnownCat)
                 CategoryErrors.BirthYearButNotKnown();
@@ -54,9 +54,121 @@ namespace WikidataBioValidation
 
         public void CompareDates()
         {
-            return;
+            CheckBirthCategory();
+            CheckDeathCategory();
+            CheckAges();
         }
 
+        private void CheckAges()
+        {
+            int Age = CalculateAge();
+
+            if (Age == 0) CategoryErrors.AgeOfZero();
+            if (Age >0) CheckCentenarian(Age);
+            if (Age >0 && Age < 14) CheckChild(Age);
+        }
+
+        private int CalculateAge()
+        {
+            if (!Wikidate.isCalculable(DOB.thisPrecision)) return -1;
+            DateTime EndTime;
+            if (DOD.thisPrecision == DatePrecision.Null)
+                EndTime = DateTime.Now;
+            else
+            {
+                if (!Wikidate.isCalculable(DOD.thisPrecision)) return -1;
+                EndTime = DOD.thisDate;
+            }
+
+            TimeSpan AgeInDays = DOD.thisDate - DOB.thisDate;
+            int AgeInYears = (int)Math.Ceiling((double)(AgeInDays.Days / 365.25));
+            return AgeInYears;
+        }
+
+        private void CheckCentenarian(int age)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void CheckChild(int age)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void CheckBirthCategory()
+        {
+            string BirthCategory = "";
+
+            if (DOB.thisPrecision == DatePrecision.Day || DOB.thisPrecision == DatePrecision.Month || DOB.thisPrecision == DatePrecision.Year)
+            {
+                BirthCategory = DOB.Year.ToString() + " births";
+                if (DOB.thisPrecision == DatePrecision.Day && BirthDateNotAccurateCat == true)
+                    CategoryErrors.BirthDateKnownDateMissingCategory(WhereDates);
+                else if (DOB.thisPrecision != DatePrecision.Day && BirthDateNotAccurateCat == false)
+                    CategoryErrors.BirthDateNotKnownNotDateMissingCategory(WhereDates);
+            }
+            else if (DOB.thisPrecision == DatePrecision.Decade)
+            {
+                BirthCategory = DOB.Year.ToString() + "s births";
+            }
+            else
+            {
+                if (BirthYearCat == true || BirthDecadeCat == true)
+                    CategoryErrors.NoBirthDateCategoryExists(WhereDates);
+                else
+
+                    if (BirthYearNotKnownCat == false)
+                        CategoryErrors.BirthDateNotKnownNoExplanation(WhereDates);
+                return;
+            }
+
+            if (Categories.IndexOf(BirthCategory) == -1)
+            {
+                if (BirthYearCat == true || BirthDecadeCat == true)
+                    CategoryErrors.BirthDateNotMatchBirthCat(WhereDates);
+                else
+                    CategoryErrors.BirthDateKnownNoCategory(WhereDates);
+            }
+
+        }
+
+        private void CheckDeathCategory()
+        {
+            string DeathCategory = "";
+
+            if (DOD.thisPrecision == DatePrecision.Day || DOD.thisPrecision == DatePrecision.Month || DOD.thisPrecision == DatePrecision.Year)
+            {
+                DeathCategory = DOD.Year.ToString() + " deaths";
+                if (DOD.thisPrecision == DatePrecision.Day && DeathDateNotAccurateCat == true)
+                    CategoryErrors.DeathDateKnownDateMissingCategory(WhereDates);
+                else if (DOD.thisPrecision != DatePrecision.Day && DeathDateNotAccurateCat == false)
+                    CategoryErrors.DeathDateNotKnownNotDateMissingCategory(WhereDates);
+            }
+            else if (DOD.thisPrecision == DatePrecision.Decade)
+            {
+                DeathCategory = DOD.Year.ToString() + "s deaths";
+            }
+            else
+            {
+                if (DeathYearCat == true || DeathDecadeCat == true)
+                    CategoryErrors.NoDeathDateCategoryExists(WhereDates);
+                else
+                    if (LivingPeopleCat == false)
+                    {
+                        if (DeathYearNotKnownCat == false)
+                            CategoryErrors.DeathDateNotKnownNoExplanation(WhereDates);
+                    }
+                return;
+            }
+
+            if (Categories.IndexOf(DeathCategory) == -1)
+            {
+                if (DeathYearCat == true || DeathDecadeCat == true)
+                    CategoryErrors.DeathDateNotMatchDeathCat(WhereDates);
+                else
+                    CategoryErrors.DeathDateKnownNoCategory(WhereDates);
+            }
+        }
 
         private void CategoryScan()
         {
